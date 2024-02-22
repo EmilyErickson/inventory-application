@@ -3,7 +3,11 @@ const asyncHandler = require("express-async-handler");
 
 // Display list of all ItemInStocks.
 exports.iteminstock_list = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: ItemInStock list");
+  const allItemsInStock = await ItemInStock.find().populate("item").exec();
+  res.render("iteminstock_list", {
+    title: "Items in Stock List",
+    iteminstock_list: allItemsInStock,
+  });
 });
 
 // Display detail page for a specific ItemInStock.
