@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1= title
+
+  if iteminstock_list.length
+    ul
+      each iteminstock in iteminstock_list
+        li
+          a(href=iteminstock.url) #{iteminstock.item.item_name} - #{iteminstock.item_count}
+
+  else
+    p There are no book copies in this library.
