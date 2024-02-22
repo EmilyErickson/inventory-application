@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1 Item: #{item.item_name}
+
+  p #[strong Category: ]
+    a(href=item.item_category.url) #{item.item_category.category_name}
+  p #[strong Description:] #{item.item_description}
+
+    if item_in_stock_count !== 0
+        p #[strong Number in Stock:] #{item_in_stock_count}
+    else 
+      p Item is out of stock.
