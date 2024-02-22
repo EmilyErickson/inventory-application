@@ -1,8 +1,23 @@
 const Item = require("../models/item");
+const Category = require("../models/category");
+const ItemInStock = require("../models/iteminstock");
+
 const asyncHandler = require("express-async-handler");
 
 exports.index = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Site Home Page");
+  const [numItems, numItemsInStock, numCategories] = await Promise.all([
+    Item.countDocuments({}).exec(),
+    ItemInStock.aggregate([
+      { $group: { _id: null, total: { $sum: "$item_count" } } },
+    ]).exec(),
+    Category.countDocuments({}).exec(),
+  ]);
+  res.render("index", {
+    title: "Store Inventory Home",
+    item_count: numItems,
+    item_in_stock_count: numItemsInStock,
+    category_count: numCategories,
+  });
 });
 
 // Display list of all items.
