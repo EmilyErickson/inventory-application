@@ -110,60 +110,62 @@ async function createCategories() {
 
 async function createItems() {
   console.log("Adding Items");
+  const existingCategories = await Category.find().exec();
+
   await Promise.all([
     itemCreate(
       0,
       "Tranquil Lavender Bliss",
-      categories[0],
+      existingCategories[0],
       "Immerse yourself in the soothing aroma of lavender fields with our Tranquil Lavender Bliss scented candle. This hand-poured soy candle brings a sense of calm and relaxation to any space, making it perfect for winding down after a long day. Enjoy the gentle, floral fragrance that lingers delicately in the air.",
       24.99
     ),
     itemCreate(
       1,
       "Citrus Burst Delight",
-      categories[0],
+      existingCategories[0],
       "Energize your surroundings with the refreshing Citrus Burst Delight scented candle. The zesty combination of citrus fruits creates a lively and invigorating atmosphere. Whether you're working, entertaining guests, or simply enjoying a quiet moment, this candle will add a burst of freshness to your space.",
       29.99
     ),
     itemCreate(
       2,
       "Autumn Harvest Spice",
-      categories[1],
+      existingCategories[1],
       "Embrace the warmth and coziness of fall with our Autumn Harvest Spice candle. This seasonal delight combines notes of cinnamon, nutmeg, and cloves to evoke the comforting scents of autumn. Perfect for creating a welcoming ambiance during chilly evenings or festive gatherings.",
       28.99
     ),
     itemCreate(
       3,
       "Winter Wonderland Frost",
-      categories[1],
+      existingCategories[1],
       "Transform your home into a winter wonderland with our Winter Wonderland Frost candle. The crisp scent of fresh snow paired with hints of pine and mint captures the magic of a snowy landscape. Light this candle to bring the enchantment of winter indoors during the holiday season",
       32.99
     ),
     itemCreate(
       4,
       "Royal Velvet Vanilla Orchid",
-      categories[2],
+      existingCategories[2],
       "Immerse yourself in luxury with our Royal Velvet Vanilla Orchid candle. The velvety smoothness of Madagascar vanilla blends seamlessly with the exotic allure of orchid blossoms, creating a fragrance that is both opulent and inviting. Elevate your space with the sophistication of this indulgent aroma",
       59.99
     ),
     itemCreate(
       5,
       "Majestic Sandalwood Serenity",
-      categories[2],
+      existingCategories[2],
       "Experience the regal allure of Majestic Sandalwood Serenity. This luxurious candle features the warm and woody notes of premium sandalwood, complemented by hints of jasmine and musk. Let the sophisticated fragrance envelop your senses and transport you to a realm of tranquility and refinement",
       64.99
     ),
     itemCreate(
       6,
       "Blissful Birthday Cake Celebration",
-      categories[3],
+      existingCategories[3],
       "Make birthdays even more special with our Blissful Birthday Cake Celebration candle. The sweet aroma of freshly baked vanilla cake, topped with sugary frosting, fills the air with delightful nostalgia. Create a festive ambiance and add a touch of sweetness to the birthday celebration.",
       35.99
     ),
     itemCreate(
       7,
       "Enchanting Anniversary Elegance",
-      categories[3],
+      existingCategories[3],
       "Celebrate enduring love with our Enchanting Anniversary Elegance candle. The romantic blend of rose petals, sweet vanilla, and a touch of cedarwood creates an enchanting fragrance that captures the essence of a lasting commitment. Light this candle to commemorate the joyous journey of love.",
       44.99
     ),
