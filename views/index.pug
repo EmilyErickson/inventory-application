@@ -1,11 +1,14 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
-</html>
+extends layout
+
+block content
+  h1= title
+  p Welcome to #[em Store Inventory], a very basic Express website.
+
+  h1 Dynamic content
+
+  p The inventory has the following record counts:
+
+  ul
+    li #[strong Items:] !{item_count}
+    li #[strong Total Items in Stock:] !{item_in_stock_count[0].total}
+    li #[strong Categories:] !{category_count}
