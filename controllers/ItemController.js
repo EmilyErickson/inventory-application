@@ -22,7 +22,14 @@ exports.index = asyncHandler(async (req, res, next) => {
 
 // Display list of all items.
 exports.item_list = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item list");
+  const allItems = await Item.find({}, "item_name item_category")
+    .sort({
+      item_name: 1,
+    })
+    .populate("item_category")
+    .exec();
+
+  res.render("item_list", { title: "Item List", item_list: allItems });
 });
 
 // Display detail page for a specific item.
