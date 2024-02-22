@@ -8,11 +8,13 @@ const logger = require("morgan");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
+const inventoryRouter = require("./routes/inventory");
 
 const app = express();
 
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
+// Connection string
 const mongoDB = process.env.DEV_DB_URL;
 
 main().catch((err) => console.log(err));
@@ -32,7 +34,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-
+app.use("/inventory", inventoryRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
