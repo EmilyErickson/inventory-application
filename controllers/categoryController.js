@@ -74,14 +74,13 @@ exports.category_create_post = [
       res.render("category_form", {
         title: "Create Category",
         category: category,
-        errors: errors.array,
+        errors: errors.array(),
       });
       return;
     } else {
       await category.save();
       res.redirect(category.url);
     }
-    // res.send("NOT IMPLEMENTED: Category create POST");
   }),
 ];
 
