@@ -1,5 +1,8 @@
 const ItemInStock = require("../models/iteminstock");
+const Item = require("../models/item");
 const asyncHandler = require("express-async-handler");
+
+const { body, validationResult } = require("express-validator");
 
 // Display list of all ItemInStocks.
 exports.iteminstock_list = asyncHandler(async (req, res, next) => {
@@ -26,18 +29,54 @@ exports.iteminstock_detail = asyncHandler(async (req, res, next) => {
     title: "Item",
     iteminstock: itemInStock,
   });
-  // res.send(`NOT IMPLEMENTED: ItemInStock detail: ${req.params.id}`);
 });
 
 // Display ItemInStock create form on GET.
 exports.iteminstock_create_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: ItemInStock create GET");
+  const allItems = await Item.find({}, "item_name")
+    .sort({ item_name: 1 })
+    .exec();
+
+  res.render("iteminstock_form", {
+    title: "Create Item Count",
+    item_list: allItems,
+  });
 });
 
 // Handle ItemInStock create on POST.
-exports.iteminstock_create_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: ItemInStock create POST");
-});
+exports.iteminstock_create_post = [
+  body("item", "Item must be specified").trim().isLength({ min: 1 }).escape(),
+  body("item_count").escape(),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const itemInStock = new ItemInStock({
+      item: req.body.item,
+      item_count: req.body.item_count,
+    });
+
+    if (!errors.isEmpty()) {
+      const allItems = await Item.find({}, "item_name")
+        .sort({
+          item_name: 1,
+        })
+        .exec();
+
+      res.render("iteminstock_form", {
+        title: "Create ItemInStock",
+        item_list: allItems,
+        selected_item: itemInStock.item._id,
+        errors: errors.array(),
+        iteminstock: itemInStock,
+      });
+      return;
+    } else {
+      await itemInStock.save();
+      res.redirect(itemInStock.url);
+    }
+  }),
+];
 
 // Display ItemInStock delete form on GET.
 exports.iteminstock_delete_get = asyncHandler(async (req, res, next) => {
