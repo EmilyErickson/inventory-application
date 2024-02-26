@@ -115,12 +115,46 @@ exports.item_create_post = [
 
 // Display item delete form on GET.
 exports.item_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item delete GET");
+  const [item, allItemInStock] = await Promise.all([
+    Item.findById(req.params.id).exec(),
+    ItemInStock.find({ item: req.params.id }).exec(),
+  ]);
+
+  if (item === null) {
+    // No results.
+    res.redirect("/inventory/items");
+  }
+  let item_in_stock_count = 0;
+  if (allItemInStock[0] && allItemInStock[0].item_count) {
+    item_in_stock_count = allItemInStock[0].item_count;
+  }
+
+  res.render("item_delete", {
+    title: "Delete Item",
+    item: item,
+    iteminstock_count: item_in_stock_count,
+  });
 });
 
 // Handle item delete on POST.
 exports.item_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item delete POST");
+  const [item, allItemInStock] = await Promise.all([
+    Item.findById(req.params.id).exec(),
+    ItemInStock.find({ item: req.params.id }).exec(),
+  ]);
+
+  if (allItemInStock.length > 0) {
+    res.render("item_delete", {
+      title: "Delete Item",
+      item: item,
+      iteminstock_count: allItemInStock[0].item_count,
+    });
+
+    return;
+  } else {
+    await Item.findByIdAndDelete(req.body.itemid);
+    res.redirect("/inventory/items");
+  }
 });
 
 // Display item update form on GET.
