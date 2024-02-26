@@ -1,0 +1,12 @@
+extends layout
+
+block content
+
+  h1 #[strong Title: ]
+    a(href=iteminstock.item.url) #{iteminstock.item.item_name}
+
+  p ID: #{iteminstock._id}
+
+  p Number of #[strong #{iteminstock.item.item_name}] in stock: #{iteminstock.item_count}    
+    if iteminstock.item_count < 1
+        p #[strong #{iteminstock.item.item_name}] is out of stock
