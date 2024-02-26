@@ -11,3 +11,7 @@ block content
         p #[strong Number in Stock:] #{item_in_stock_count}
     else 
       p Item is out of stock.
+
+    hr
+    p
+      a(href=item.url+'/delete') Delete Item
