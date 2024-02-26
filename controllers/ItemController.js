@@ -4,6 +4,8 @@ const ItemInStock = require("../models/iteminstock");
 
 const asyncHandler = require("express-async-handler");
 
+const { body, validationResult } = require("express-validator");
+
 exports.index = asyncHandler(async (req, res, next) => {
   const [numItems, numItemsInStock, numCategories] = await Promise.all([
     Item.countDocuments({}).exec(),
@@ -43,22 +45,73 @@ exports.item_detail = asyncHandler(async (req, res, next) => {
     err.status = 404;
     return next(err);
   }
+  let item_in_stock_count = 0;
+  if (iteminstock[0] && iteminstock[0].item_count) {
+    item_in_stock_count = iteminstock[0].item_count;
+  }
+
   res.render("item_detail", {
     name: item.name,
     item: item,
-    item_in_stock_count: iteminstock[0].item_count,
+    item_in_stock_count: item_in_stock_count,
   });
 });
 
 // Display item create form on GET.
 exports.item_create_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item create GET");
+  const allCategories = await Category.find().sort({ category_name: 1 }).exec();
+
+  res.render("item_form", {
+    title: "Create Item",
+    categories: allCategories,
+  });
 });
 
 // Handle item create on POST.
-exports.item_create_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item create POST");
-});
+exports.item_create_post = [
+  body("item_name", "Name must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("item_category", "Category must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("item_description", "Description must not be empty.")
+    .trim()
+    .isLength({ min: 15 })
+    .escape(),
+  body("item_price", "Price must be a valid number.")
+    .trim()
+    .isFloat({ min: 0 })
+    .withMessage("Price must be a positive number."),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const item = new Item({
+      item_name: req.body.item_name,
+      item_category: req.body.item_category,
+      item_description: req.body.item_description,
+      item_price: req.body.item_price,
+    });
+
+    if (!errors.isEmpty()) {
+      const allCategories = await Category.find()
+        .sort({ category_name: 1 })
+        .exec();
+      res.render("item_form", {
+        title: "Create Item",
+        categories: allCategories,
+        item: item,
+        errors: errors.array(),
+      });
+    } else {
+      await item.save();
+      res.redirect(item.url);
+    }
+  }),
+];
 
 // Display item delete form on GET.
 exports.item_delete_get = asyncHandler(async (req, res, next) => {
