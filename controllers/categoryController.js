@@ -40,8 +40,6 @@ exports.category_detail = asyncHandler(async (req, res, next) => {
     category_items: allItemsInCategory,
   });
 });
-//   res.send(`NOT IMPLEMENTED: Category detail: ${req.params.id}`);
-// });
 
 exports.category_create_get = asyncHandler(async (req, res, next) => {
   res.render("category_form", { title: "Create Category" });
