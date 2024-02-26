@@ -12,7 +12,21 @@ exports.iteminstock_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for a specific ItemInStock.
 exports.iteminstock_detail = asyncHandler(async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: ItemInStock detail: ${req.params.id}`);
+  const itemInStock = await ItemInStock.findById(req.params.id)
+    .populate("item")
+    .exec();
+
+  if (itemInStock === null) {
+    const err = new Error("Item is out of stock");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("iteminstock_detail", {
+    title: "Item",
+    iteminstock: itemInStock,
+  });
+  // res.send(`NOT IMPLEMENTED: ItemInStock detail: ${req.params.id}`);
 });
 
 // Display ItemInStock create form on GET.
