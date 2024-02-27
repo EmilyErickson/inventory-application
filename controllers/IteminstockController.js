@@ -80,12 +80,24 @@ exports.iteminstock_create_post = [
 
 // Display ItemInStock delete form on GET.
 exports.iteminstock_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: ItemInStock delete GET");
+  const itemInStock = await ItemInStock.findById(req.params.id).exec();
+
+  if (itemInStock === null) {
+    res.redirect("/inventory/itemsinstock");
+  }
+
+  res.render("iteminstock_delete", {
+    title: "Delete Item Stock",
+    iteminstock: itemInStock,
+  });
 });
 
 // Handle ItemInStock delete on POST.
 exports.iteminstock_delete_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: ItemInStock delete POST");
+  const itemInStock = await ItemInStock.findById(req.params.id).exec();
+
+  await ItemInStock.findByIdAndDelete(req.body.iteminstockid);
+  res.redirect("inventory/itemsinstock");
 });
 
 // Display ItemInStock update form on GET.
