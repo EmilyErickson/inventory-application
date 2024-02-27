@@ -1,0 +1,14 @@
+extends layout
+
+block content
+
+  h1 #{title}: #{iteminstock.item}
+  p Item Stock Count: #{iteminstock.item_count}
+
+    p Do you really want to delete this Item stock? This is permenant and cannot be undone.
+
+    form(method='POST')
+      div.form-group
+        input#iteminstockid.form-control(type='hidden', name='iteminstockid', value=iteminstock._id )
+
+      button.btn.btn-primary(type='submit') Delete
