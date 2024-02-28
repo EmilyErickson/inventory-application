@@ -168,7 +168,7 @@ exports.item_update_get = asyncHandler(async (req, res, next) => {
   ]);
 
   if (item === null) {
-    const err = new Error("Book not found");
+    const err = new Error("Item not found");
     err.status = 404;
     return next(err);
   }
