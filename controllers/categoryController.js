@@ -124,9 +124,56 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
 });
 
 exports.category_update_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category update GET");
+  const category = await Category.findById(req.params.id).exec();
+
+  if (category === null) {
+    // No results.
+    res.redirect("/inventory/categories");
+  }
+
+  res.render("category_form", {
+    title: "Update Category",
+    category: category,
+  });
 });
 
-exports.category_update_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Category update POST");
-});
+exports.category_update_post = [
+  body("category_name")
+    .trim()
+    .isLength({ min: 5 })
+    .escape()
+    .withMessage("Category name must be specified.")
+    .custom((value) => {
+      return /^[a-zA-Z0-9\s]+$/.test(value);
+    })
+    .withMessage(
+      "Category name can only contain alphanumeric characters and spaces."
+    ),
+  body("category_description")
+    .trim()
+    .isLength({ min: 10 })
+    .escape()
+    .withMessage("Category description must be at least 10 characters."),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const category = new Category({
+      category_name: req.body.category_name,
+      category_description: req.body.category_description,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      res.render("category_form", {
+        title: "Create Category",
+        category: category,
+        errors: errors.array(),
+      });
+      return;
+    } else {
+      await Category.findByIdAndUpdate(req.params.id, category, {});
+      res.redirect(category.url);
+    }
+  }),
+];
