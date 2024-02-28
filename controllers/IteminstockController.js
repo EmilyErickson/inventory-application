@@ -102,10 +102,56 @@ exports.iteminstock_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display ItemInStock update form on GET.
 exports.iteminstock_update_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: ItemInStock update GET");
+  const [selected_item, allItems] = await Promise.all([
+    ItemInStock.findById(req.params.id).populate("item").exec(),
+    Item.find().sort({ item_name: 1 }).exec(),
+  ]);
+
+  if (selected_item === null) {
+    const err = new Error(`Item not found - ${req.params.id}`);
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("iteminstock_form", {
+    title: "Update Item Count",
+    selected_item: selected_item,
+    item_list: allItems,
+  });
 });
 
 // Handle ItemInStock update on POST.
-exports.iteminstock_update_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: ItemInStock update POST");
-});
+exports.iteminstock_update_post = [
+  body("item", "Item must be specified").trim().isLength({ min: 1 }).escape(),
+  body("item_count").escape(),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const itemInStock = new ItemInStock({
+      item: req.body.item,
+      item_count: req.body.item_count,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      const allItems = await Item.find({}, "item_name")
+        .sort({
+          item_name: 1,
+        })
+        .exec();
+
+      res.render("iteminstock_form", {
+        title: "Create ItemInStock",
+        item_list: allItems,
+        selected_item: itemInStock.item._id,
+        errors: errors.array(),
+        iteminstock: itemInStock,
+      });
+      return;
+    } else {
+      await ItemInStock.findByIdAndUpdate(req.params.id, itemInStock, {});
+      res.redirect(itemInStock.url);
+    }
+  }),
+];
