@@ -4,7 +4,6 @@ const router = express.Router();
 // Require controller modules.
 const item_controller = require("../controllers/itemController");
 const category_controller = require("../controllers/categoryController");
-const item_in_stock_controller = require("../controllers/iteminstockController");
 
 /// ITEM ROUTES ///
 
@@ -60,49 +59,5 @@ router.get("/category/:id", category_controller.category_detail);
 
 // GET request for list of all Categories.
 router.get("/categories", category_controller.category_list);
-
-/// ITEMINSTOCK ROUTES ///
-
-// GET request for creating a ItemInStock. NOTE This must come before route that displays ItemInStock (uses id).
-router.get(
-  "/iteminstock/create",
-  item_in_stock_controller.iteminstock_create_get
-);
-
-// POST request for creating ItemInStock.
-router.post(
-  "/iteminstock/create",
-  item_in_stock_controller.iteminstock_create_post
-);
-
-// GET request to delete ItemInStock.
-router.get(
-  "/iteminstock/:id/delete",
-  item_in_stock_controller.iteminstock_delete_get
-);
-
-// POST request to delete ItemInStock.
-router.post(
-  "/iteminstock/:id/delete",
-  item_in_stock_controller.iteminstock_delete_post
-);
-
-// GET request to update ItemInStock.
-router.get(
-  "/iteminstock/:id/update",
-  item_in_stock_controller.iteminstock_update_get
-);
-
-// POST request to update ItemInStock.
-router.post(
-  "/iteminstock/:id/update",
-  item_in_stock_controller.iteminstock_update_post
-);
-
-// GET request for one ItemInStock.
-router.get("/iteminstock/:id", item_in_stock_controller.iteminstock_detail);
-
-// GET request for list of all ItemsInStock.
-router.get("/itemsinstock", item_in_stock_controller.iteminstock_list);
 
 module.exports = router;

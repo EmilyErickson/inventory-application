@@ -11,6 +11,7 @@ const ItemSchema = new Schema({
   },
   item_description: { type: String, minLength: 15 },
   item_price: { type: Number, required: true, min: 0 },
+  item_count: { type: Number, required: false },
 });
 
 ItemSchema.virtual("url").get(function () {

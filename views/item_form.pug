@@ -25,6 +25,9 @@ block content
     div.form-group
       label(for='item_price') Price:
       input#item_price.form-control(type='text', placeholder='24.99' name='item_price' required value=(undefined===item ? '' : item.item_price))
+    div.form-group
+      label(for='item_count') Stock Count:
+      input#item_count.form-control(type='text', placeholder='5' name='item_count' required value=(undefined===item ? '' : item.item_count))
     button.btn.btn-primary(type='submit') Submit
 
 

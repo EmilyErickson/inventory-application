@@ -5,14 +5,6 @@ block content
   h1 #{title}: #{item.item_name}
   p= item.item_description
 
-  if iteminstock_count
-
-    p #[strong Delete the item stock before attempting to delete this item.]
-    div(style='margin-left:20px;margin-top:20px')
-      h5 Number of item in stock
-      p #{iteminstock_count}
-
-  else
     p Do you really want to delete this Item?
 
     form(method='POST')

@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 console.log(
-  'This script populates some test items, categories, and itemsinstock to your database. Specified database as argument - e.g.: node populatedb "mongodb+srv://cooluser:coolpassword@cluster0.lz91hw2.mongodb.net/local_library?retryWrites=true&w=majority"'
+  'This script populates some test items and categories to your database. Specified database as argument - e.g.: node populatedb "mongodb+srv://cooluser:coolpassword@cluster0.lz91hw2.mongodb.net/local_library?retryWrites=true&w=majority"'
 );
 
 // Get arguments passed on command line
@@ -9,11 +9,9 @@ const userArgs = process.argv.slice(2);
 
 const Item = require("./models/item");
 const Category = require("./models/category");
-const ItemInStock = require("./models/iteminstock");
 
 const categories = [];
 const items = [];
-const itemsinstock = [];
 
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
@@ -28,14 +26,9 @@ async function main() {
   console.log("Debug: Should be connected?");
   await createCategories();
   await createItems();
-  await createItemsinStock();
   console.log("Debug: Closing mongoose");
   mongoose.connection.close();
 }
-
-// We pass the index to the ...Create functions so that, for example,
-// genre[0] will always be the Fantasy genre, regardless of the order
-// in which the elements of promise.all's argument complete.
 
 async function categoryCreate(index, category_name, category_description) {
   const categorydetail = {
@@ -55,31 +48,21 @@ async function itemCreate(
   item_name,
   item_category,
   item_description,
-  item_price
+  item_price,
+  item_count
 ) {
   const itemdetail = {
     item_name: item_name,
     item_category: item_category,
     item_description: item_description,
     item_price: item_price,
+    item_count: item_count,
   };
 
   const item = new Item(itemdetail);
   await item.save();
   items[index] = item;
   console.log(`Added Item: ${item_name}`);
-}
-
-async function iteminstockCreate(index, item, item_count) {
-  const iteminstockdetail = {
-    item: item,
-  };
-  if (item_count != false) iteminstockdetail.item_count = item_count;
-
-  const iteminstock = new ItemInStock(iteminstockdetail);
-  await iteminstock.save();
-  itemsinstock[index] = iteminstock;
-  console.log(`Added iteminstock: ${item}`);
 }
 
 async function createCategories() {
@@ -118,70 +101,64 @@ async function createItems() {
       "Tranquil Lavender Bliss",
       existingCategories[0],
       "Immerse yourself in the soothing aroma of lavender fields with our Tranquil Lavender Bliss scented candle. This hand-poured soy candle brings a sense of calm and relaxation to any space, making it perfect for winding down after a long day. Enjoy the gentle, floral fragrance that lingers delicately in the air.",
-      24.99
+      24.99,
+      15
     ),
     itemCreate(
       1,
       "Citrus Burst Delight",
       existingCategories[0],
       "Energize your surroundings with the refreshing Citrus Burst Delight scented candle. The zesty combination of citrus fruits creates a lively and invigorating atmosphere. Whether you're working, entertaining guests, or simply enjoying a quiet moment, this candle will add a burst of freshness to your space.",
-      29.99
+      29.99,
+      28
     ),
     itemCreate(
       2,
       "Autumn Harvest Spice",
       existingCategories[1],
       "Embrace the warmth and coziness of fall with our Autumn Harvest Spice candle. This seasonal delight combines notes of cinnamon, nutmeg, and cloves to evoke the comforting scents of autumn. Perfect for creating a welcoming ambiance during chilly evenings or festive gatherings.",
-      28.99
+      28.99,
+      23
     ),
     itemCreate(
       3,
       "Winter Wonderland Frost",
       existingCategories[1],
       "Transform your home into a winter wonderland with our Winter Wonderland Frost candle. The crisp scent of fresh snow paired with hints of pine and mint captures the magic of a snowy landscape. Light this candle to bring the enchantment of winter indoors during the holiday season",
-      32.99
+      32.99,
+      15
     ),
     itemCreate(
       4,
       "Royal Velvet Vanilla Orchid",
       existingCategories[2],
       "Immerse yourself in luxury with our Royal Velvet Vanilla Orchid candle. The velvety smoothness of Madagascar vanilla blends seamlessly with the exotic allure of orchid blossoms, creating a fragrance that is both opulent and inviting. Elevate your space with the sophistication of this indulgent aroma",
-      59.99
+      59.99,
+      12
     ),
     itemCreate(
       5,
       "Majestic Sandalwood Serenity",
       existingCategories[2],
       "Experience the regal allure of Majestic Sandalwood Serenity. This luxurious candle features the warm and woody notes of premium sandalwood, complemented by hints of jasmine and musk. Let the sophisticated fragrance envelop your senses and transport you to a realm of tranquility and refinement",
-      64.99
+      64.99,
+      21
     ),
     itemCreate(
       6,
       "Blissful Birthday Cake Celebration",
       existingCategories[3],
       "Make birthdays even more special with our Blissful Birthday Cake Celebration candle. The sweet aroma of freshly baked vanilla cake, topped with sugary frosting, fills the air with delightful nostalgia. Create a festive ambiance and add a touch of sweetness to the birthday celebration.",
-      35.99
+      35.99,
+      9
     ),
     itemCreate(
       7,
       "Enchanting Anniversary Elegance",
       existingCategories[3],
       "Celebrate enduring love with our Enchanting Anniversary Elegance candle. The romantic blend of rose petals, sweet vanilla, and a touch of cedarwood creates an enchanting fragrance that captures the essence of a lasting commitment. Light this candle to commemorate the joyous journey of love.",
-      44.99
+      44.99,
+      7
     ),
-  ]);
-}
-
-async function createItemsinStock() {
-  console.log("Adding itemsinstock");
-  await Promise.all([
-    iteminstockCreate(0, items[0], 12),
-    iteminstockCreate(1, items[1], 18),
-    iteminstockCreate(2, items[2], 24),
-    iteminstockCreate(3, items[3], 19),
-    iteminstockCreate(4, items[4], 8),
-    iteminstockCreate(5, items[5], 6),
-    iteminstockCreate(6, items[6], 15),
-    iteminstockCreate(7, items[7], 13),
   ]);
 }
