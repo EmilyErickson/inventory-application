@@ -84,16 +84,19 @@ exports.item_create_post = [
   body("item_price", "Price must be a valid number.")
     .trim()
     .isFloat({ min: 0 })
+    .isFloat()
     .withMessage("Price must be a positive number."),
 
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
+    const formattedPrice = parseFloat(req.body.item_price).toFixed(2);
+
     const item = new Item({
       item_name: req.body.item_name,
       item_category: req.body.item_category,
       item_description: req.body.item_description,
-      item_price: req.body.item_price,
+      item_price: formattedPrice,
     });
 
     if (!errors.isEmpty()) {
@@ -159,10 +162,70 @@ exports.item_delete_post = asyncHandler(async (req, res, next) => {
 
 // Display item update form on GET.
 exports.item_update_get = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item update GET");
+  const [item, allCategories] = await Promise.all([
+    Item.findById(req.params.id).populate("item_category").exec(),
+    Category.find().sort({ category_name: 1 }).exec(),
+  ]);
+
+  if (item === null) {
+    const err = new Error("Book not found");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("item_form", {
+    title: "Update Item",
+    categories: allCategories,
+    item: item,
+  });
 });
 
 // Handle item update on POST.
-exports.item_update_post = asyncHandler(async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Item update POST");
-});
+exports.item_update_post = [
+  body("item_name", "Name must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("item_category", "Category must not be empty.")
+    .trim()
+    .isLength({ min: 1 })
+    .escape(),
+  body("item_description", "Description must not be empty.")
+    .trim()
+    .isLength({ min: 15 })
+    .escape(),
+  body("item_price", "Price must be a valid number.")
+    .trim()
+    .isFloat({ min: 0 })
+    .toFloat()
+    .withMessage("Price must be a positive number."),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const formattedPrice = parseFloat(req.body.item_price).toFixed(2);
+
+    const updatedItem = new Item({
+      item_name: req.body.item_name,
+      item_category: req.body.item_category,
+      item_description: req.body.item_description,
+      item_price: formattedPrice,
+      _id: req.params.id,
+    });
+
+    if (!errors.isEmpty()) {
+      const item_category = await Category.find()
+        .sort({ category_name: 1 })
+        .exec();
+      res.render("item_form", {
+        title: "Create Item",
+        item_category: item_category,
+        item: updatedItem,
+        errors: errors.array(),
+      });
+    } else {
+      await Item.findByIdAndUpdate(req.params.id, updatedItem, {});
+      res.redirect(updatedItem.url);
+    }
+  }),
+];
