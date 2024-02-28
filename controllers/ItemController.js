@@ -1,6 +1,5 @@
 const Item = require("../models/item");
 const Category = require("../models/category");
-const ItemInStock = require("../models/iteminstock");
 
 const asyncHandler = require("express-async-handler");
 
@@ -9,7 +8,7 @@ const { body, validationResult } = require("express-validator");
 exports.index = asyncHandler(async (req, res, next) => {
   const [numItems, numItemsInStock, numCategories] = await Promise.all([
     Item.countDocuments({}).exec(),
-    ItemInStock.aggregate([
+    Item.aggregate([
       { $group: { _id: null, total: { $sum: "$item_count" } } },
     ]).exec(),
     Category.countDocuments({}).exec(),
@@ -36,24 +35,19 @@ exports.item_list = asyncHandler(async (req, res, next) => {
 
 // Display detail page for a specific item.
 exports.item_detail = asyncHandler(async (req, res, next) => {
-  const [item, iteminstock] = await Promise.all([
-    Item.findById(req.params.id).populate("item_category").exec(),
-    ItemInStock.find({ item: req.params.id }).exec(),
-  ]);
+  const item = await Item.findById(req.params.id)
+    .populate("item_category")
+    .exec();
+
   if (item === null) {
     const err = new Error("Item not found");
     err.status = 404;
     return next(err);
   }
-  let item_in_stock_count = 0;
-  if (iteminstock[0] && iteminstock[0].item_count) {
-    item_in_stock_count = iteminstock[0].item_count;
-  }
 
   res.render("item_detail", {
     name: item.name,
     item: item,
-    item_in_stock_count: item_in_stock_count,
   });
 });
 
@@ -77,15 +71,19 @@ exports.item_create_post = [
     .trim()
     .isLength({ min: 1 })
     .escape(),
-  body("item_description", "Description must not be empty.")
+  body("item_description", "Description must be at least 15 characters.")
     .trim()
     .isLength({ min: 15 })
     .escape(),
   body("item_price", "Price must be a valid number.")
     .trim()
     .isFloat({ min: 0 })
-    .isFloat()
+    .toFloat()
     .withMessage("Price must be a positive number."),
+  body("item_count", "Stock count must be a valid number.")
+    .trim()
+    .isFloat()
+    .withMessage("Stock count cannont be less than 0"),
 
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
@@ -97,6 +95,7 @@ exports.item_create_post = [
       item_category: req.body.item_category,
       item_description: req.body.item_description,
       item_price: formattedPrice,
+      item_count: req.body.item_count,
     });
 
     if (!errors.isEmpty()) {
@@ -118,46 +117,23 @@ exports.item_create_post = [
 
 // Display item delete form on GET.
 exports.item_delete_get = asyncHandler(async (req, res, next) => {
-  const [item, allItemInStock] = await Promise.all([
-    Item.findById(req.params.id).exec(),
-    ItemInStock.find({ item: req.params.id }).exec(),
-  ]);
+  const item = await Item.findById(req.params.id).exec();
 
   if (item === null) {
     // No results.
     res.redirect("/inventory/items");
   }
-  let item_in_stock_count = 0;
-  if (allItemInStock[0] && allItemInStock[0].item_count) {
-    item_in_stock_count = allItemInStock[0].item_count;
-  }
 
   res.render("item_delete", {
     title: "Delete Item",
     item: item,
-    iteminstock_count: item_in_stock_count,
   });
 });
 
 // Handle item delete on POST.
 exports.item_delete_post = asyncHandler(async (req, res, next) => {
-  const [item, allItemInStock] = await Promise.all([
-    Item.findById(req.params.id).exec(),
-    ItemInStock.find({ item: req.params.id }).exec(),
-  ]);
-
-  if (allItemInStock.length > 0) {
-    res.render("item_delete", {
-      title: "Delete Item",
-      item: item,
-      iteminstock_count: allItemInStock[0].item_count,
-    });
-
-    return;
-  } else {
-    await Item.findByIdAndDelete(req.body.itemid);
-    res.redirect("/inventory/items");
-  }
+  await Item.findByIdAndDelete(req.body.itemid);
+  res.redirect("/inventory/items");
 });
 
 // Display item update form on GET.
@@ -199,6 +175,10 @@ exports.item_update_post = [
     .isFloat({ min: 0 })
     .toFloat()
     .withMessage("Price must be a positive number."),
+  body("item_count", "Stock count must be a valid number.")
+    .trim()
+    .isFloat()
+    .withMessage("Stock count must be a positive number or 0"),
 
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
@@ -210,6 +190,7 @@ exports.item_update_post = [
       item_category: req.body.item_category,
       item_description: req.body.item_description,
       item_price: formattedPrice,
+      item_count: req.body.item_count,
       _id: req.params.id,
     });
 
