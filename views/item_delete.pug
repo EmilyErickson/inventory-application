@@ -5,10 +5,21 @@ block content
   h1 #{title}: #{item.item_name}
   p= item.item_description
 
-    p Do you really want to delete this Item?
+    if passwordMsg
+      h2 Incorrect password
+      h3
+        a(href='/inventory/items') All Items
 
-    form(method='POST')
-      div.form-group
-        input#itemid.form-control(type='hidden', name='itemid', value=item._id )
+    else
 
-      button.btn.btn-primary(type='submit') Delete
+      p Do you really want to delete this Item?
+
+      form(method='POST')
+        div.form-group
+          input#itemid.form-control(type='hidden', name='itemid', value=item._id )
+        
+        div.form-group
+          label(for='adminPassword') Admin Password:
+          input#adminPassword.form-control(type='password', name='adminPassword', required)
+
+        button.btn.btn-primary(type='submit') Delete
