@@ -1,4 +1,5 @@
 require("dotenv").config();
+const helmet = require("helmet");
 
 const createError = require("http-errors");
 const express = require("express");
@@ -11,6 +12,14 @@ const usersRouter = require("./routes/users");
 const inventoryRouter = require("./routes/inventory");
 
 const app = express();
+
+const RateLimit = require("express-rate-limit");
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20,
+});
+// Apply rate limiter to all requests
+app.use(limiter);
 
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
@@ -31,6 +40,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      "script-src": ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
+    },
+  })
+);
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
