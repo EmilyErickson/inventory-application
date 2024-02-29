@@ -1,11 +1,18 @@
 body {
   padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: rgb(212, 230, 248);
+  text-shadow: -1px 2px 2px rgb(153, 168, 182);
 }
 
 a {
-  color: #ff9d00;
+  color: #12014d;
 }
+a:hover {
+  font-size: 15px;
+  color: #080024;
+}
+
 .sidebar-nav {
   margin-top: 20px;
   padding: 0;
