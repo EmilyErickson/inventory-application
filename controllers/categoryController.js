@@ -48,7 +48,7 @@ exports.category_create_get = asyncHandler(async (req, res, next) => {
 exports.category_create_post = [
   body("category_name")
     .trim()
-    .isLength({ min: 5 })
+    .isLength({ min: 1 })
     .escape()
     .withMessage("Category name must be specified.")
     .custom((value) => {
@@ -67,9 +67,10 @@ exports.category_create_post = [
 
     const category = new Category({
       category_name: req.body.category_name,
-
       category_description: req.body.category_description,
+      admin_password: process.env.ADMIN_PASSWORD,
     });
+
     if (!errors.isEmpty()) {
       res.render("category_form", {
         title: "Create Category",
@@ -99,6 +100,7 @@ exports.category_delete_get = asyncHandler(async (req, res, next) => {
     title: "Delete Category",
     category: category,
     category_items: allItemsInCategory,
+    passwordMsg: null,
   });
 });
 
@@ -114,13 +116,24 @@ exports.category_delete_post = asyncHandler(async (req, res, next) => {
       title: "Delete Category",
       category: category,
       category_items: allItemsInCategory,
+      passwordMsg: null,
     });
     return;
-  } else {
-    // Category has no items. Delete object and redirect to the list of categories.
-    await Category.findByIdAndDelete(req.body.categoryid);
-    res.redirect("/inventory/categories");
   }
+
+  const adminPassword = req.body.admin_password;
+  if (adminPassword !== process.env.ADMIN_PASSWORD) {
+    res.render("category_delete", {
+      title: "Delete Category",
+      category: category,
+      category_items: allItemsInCategory,
+      passwordMsg: "Incorrect admin password",
+    });
+    return;
+  }
+  // Category has no items. Delete object and redirect to the list of categories.
+  await Category.findByIdAndDelete(req.body.categoryid);
+  res.redirect("/inventory/categories");
 });
 
 exports.category_update_get = asyncHandler(async (req, res, next) => {
