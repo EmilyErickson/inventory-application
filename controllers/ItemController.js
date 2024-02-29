@@ -127,11 +127,24 @@ exports.item_delete_get = asyncHandler(async (req, res, next) => {
   res.render("item_delete", {
     title: "Delete Item",
     item: item,
+    passwordMsg: null,
   });
 });
 
 // Handle item delete on POST.
 exports.item_delete_post = asyncHandler(async (req, res, next) => {
+  const item = await Item.findById(req.params.id).populate("item_name").exec();
+  const adminPassword = req.body.adminPassword;
+
+  if (adminPassword !== process.env.ADMIN_PASSWORD) {
+    return res.render("item_delete", {
+      title: "Delete Item",
+      item: item,
+      passwordMsg: "Incorrect admin password",
+      // error: "Incorrect admin password",
+    });
+  }
+
   await Item.findByIdAndDelete(req.body.itemid);
   res.redirect("/inventory/items");
 });
