@@ -16,7 +16,7 @@ exports.index = asyncHandler(async (req, res, next) => {
   res.render("index", {
     title: "Store Inventory Home",
     item_count: numItems,
-    item_in_stock_count: numItemsInStock,
+    item_in_stock_count: numItemsInStock[0] ? numItemsInStock[0].total : 0,
     category_count: numCategories,
   });
 });
