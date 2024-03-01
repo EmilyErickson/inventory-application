@@ -10,9 +10,8 @@ block content
 
   ul
     li #[strong Items:] !{item_count}
-    li #[strong Total Items in Stock:] 
       if item_in_stock_count
-        !{item_in_stock_count[0].total}
+          li #[strong Total Items in Stock:] !{item_in_stock_count[0].total}
       else 
-        "No Items in stock"
+        li #[strong No Items in stock]
     li #[strong Categories:] !{category_count}
