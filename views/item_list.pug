@@ -7,8 +7,7 @@ block content
       each item in item_list
         li
           a(href=item.url)= item.item_name
-            | #{item}
-          //- |  (#{item.item_category.category_name})
+          |  (#{item.item_category.category_name})
 
   else
     p There are no items.
