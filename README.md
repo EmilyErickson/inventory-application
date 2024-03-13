@@ -8,4 +8,4 @@ This project is a very basic inventory site for an online candle store. It allow
 
 # Live Page
 
-You can find the live page on Railway - https://inventory-application-production-298a.up.railway.app/
+You can find the live page on Glitch - <https://knowing-material-akubra.glitch.me/inventory>
